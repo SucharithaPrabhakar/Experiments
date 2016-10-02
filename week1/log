@@ -1,0 +1,5 @@
+g++ -std=c++11 -pthread -o process1_4threads process1_4threads.cpp
+//Compiling and linking ipc files
+g++ -c -Wall -I ./libraries/boost_1_61_0 ipc_sender.cpp 
+g++ -L /usr/libx32/librt.so ipc_sender.o -o ipc_sender -lrt -lpthread
+
