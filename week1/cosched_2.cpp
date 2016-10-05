@@ -6,7 +6,7 @@
 #include <mutex>
 #include <thread>
 #include <vector>
-#define NUM_THREADS 4
+#define NUM_THREADS 2
 
 int main(int argc, char* argv[ ]) 
 {
@@ -14,31 +14,33 @@ int main(int argc, char* argv[ ])
     std::mutex io_mutex;
     std::string msg_q;
     using namespace boost::interprocess;
-    long int execCount[] = {0, 0, 0, 0};
-    std::string mqName[] = {"zero", "one", "two", "three"};
+    long int execCount[] = {0, 0};
+    std::string mqName[] = {"zero", "one"};
+    int buffer;
+    size_t recvd_size;
+    unsigned int priority;
     time_t end = time(NULL) + 60;
     for (unsigned int i = 0; i < NUM_THREADS; i++)
     {
-      threads[i] = std::thread([&io_mutex, &mqName, &execCount, end, i]
+      threads[i] = std::thread([&io_mutex, &mqName, &execCount, end, i, &buffer, &recvd_size, &priority]
       {
         while(time(NULL) <= end)
         {
           try 
           {
              {
-                message_queue mq (open_or_create, mqName[i].c_str(),  20, sizeof(int));
-                for (int msg_num = 0; msg_num < 20; ++msg_num)
+                message_queue mq (open_only, mqName[i].c_str());
                 { 
                    std::lock_guard<std::mutex> iolock(io_mutex);
-                   if(mq.try_send(&msg_num, sizeof(int), 0)) //Third arg is prio
+                   if((mq.get_num_msg() == 1) && mq.try_receive((void*) &buffer, sizeof(int), recvd_size, priority))
                    {
                      //Increment execCount only on successful send just to keep track of dependency on receiver.
                      execCount[i]++;
-                     std::cout << "Thread id\t" << syscall( __NR_gettid ) <<  "\tCPU\t" << sched_getcpu() << "\tExec Count\t" << execCount[i] << std::endl;
+                     std::cout << "Thread id\t" << syscall( __NR_gettid ) <<  "\tCPU\t" << sched_getcpu() << "\tExec Count\t" << execCount[i] << "\tReceived\t" << buffer << std::endl;
+                     //int count = 0;
+                     //while(count < INT_MAX) {count++;}
                    }
                }
-               // Add a sleep just to simulate random computation to be done by the thread
-               std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
          } 
          catch (interprocess_exception& e) 
