@@ -6,19 +6,23 @@
 #include <mutex>
 #include <thread>
 #include <vector>
-#define NUM_THREADS 4
-
+#define NUM_THREADS 2
+// These are the producer threads. 
+// It sends one message to the message queue and waits for the message to be consumed
+// Since the producer sends only when the size of the queue is 0, the producer will 
+// be blocked untill the consumer threads consume the message.
 int main(int argc, char* argv[ ]) 
 {
     std::vector<std::thread> threads(NUM_THREADS);
     std::mutex io_mutex;
     std::string msg_q;
     using namespace boost::interprocess;
-    long int execCount[] = {0, 0, 0, 0};
-    std::string mqName[] = {"zero", "one", "two", "three"};
+    long int execCount[] = {0, 0};
+    std::string mqName[] = {"zero", "one"};
     time_t end = time(NULL) + 60;
     for (unsigned int i = 0; i < NUM_THREADS; i++)
     {
+      thread_local int msg_num = 0;
       threads[i] = std::thread([&io_mutex, &mqName, &execCount, end, i]
       {
         while(time(NULL) <= end)
@@ -26,19 +30,19 @@ int main(int argc, char* argv[ ])
           try 
           {
              {
-                message_queue mq (open_or_create, mqName[i].c_str(),  20, sizeof(int));
-                for (int msg_num = 0; msg_num < 20; ++msg_num)
+                message_queue mq (open_or_create, mqName[i].c_str(),  1, sizeof(int));
                 { 
                    std::lock_guard<std::mutex> iolock(io_mutex);
-                   if(mq.try_send(&msg_num, sizeof(int), 0)) //Third arg is prio
+                   if((mq.get_num_msg() == 0) && (mq.try_send(&msg_num, sizeof(int), 0)))
                    {
                      //Increment execCount only on successful send just to keep track of dependency on receiver.
                      execCount[i]++;
-                     std::cout << "Thread id\t" << syscall( __NR_gettid ) <<  "\tCPU\t" << sched_getcpu() << "\tExec Count\t" << execCount[i] << std::endl;
+                     msg_num++;
+                     std::cout << "Thread id\t" << syscall( __NR_gettid ) <<  "\tCPU\t" << sched_getcpu() << "\tExec Count\t" << execCount[i] << "\tMessage Number\t" << msg_num << std::endl;
+                     //int count = 0;
+                     //while(count < INT_MAX) {count++;}
                    }
                }
-               // Add a sleep just to simulate random computation to be done by the thread
-               std::this_thread::sleep_for(std::chrono::milliseconds(500));
             }
          } 
          catch (interprocess_exception& e) 
