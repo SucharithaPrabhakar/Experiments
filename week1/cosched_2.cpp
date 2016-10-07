@@ -19,7 +19,7 @@ int main(int argc, char* argv[ ])
     int buffer;
     size_t recvd_size;
     unsigned int priority;
-    time_t end = time(NULL) + 60;
+    time_t end = time(NULL) + 240;
     for (unsigned int i = 0; i < NUM_THREADS; i++)
     {
       threads[i] = std::thread([&io_mutex, &mqName, &execCount, end, i, &buffer, &recvd_size, &priority]
