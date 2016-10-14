@@ -10,7 +10,9 @@ COSCHED4 = cosched_4
 COSCHED5 = process1
 COSCHED6 = process2
 COSCHED7 = process3
-all: cosched1 cosched2 cosched3 cosched4 cosched5 cosched6 cosched7
+COSCHED8 = process4
+
+all: cosched1 cosched2 cosched3 cosched4 cosched5 cosched6 cosched7 cosched8
 
 cosched1: $(COSCHED1).cpp
 	$(CC) $(CFLAGS2) $(COSCHED1).cpp
@@ -40,6 +42,10 @@ cosched7: $(COSCHED7).cpp
 	$(CC) $(CFLAGS2) $(COSCHED7).cpp
 	$(CC) $(CFLAGS3) $(COSCHED7).o -o $(COSCHED7) -lrt -lpthread
 
+cosched8: $(COSCHED8).cpp
+	$(CC) $(CFLAGS2) $(COSCHED8).cpp
+	$(CC) $(CFLAGS3) $(COSCHED8).o -o $(COSCHED8) -lrt -lpthread
+
 clean:
-	$(RM) $(TARGET) $(COSCHED1) $(COSCHED2) $(COSCHED3) $(COSCHED4) $(COSCHED5) $(COSCHED6) $(COSCHED7)
+	$(RM) $(TARGET) $(COSCHED1) $(COSCHED2) $(COSCHED3) $(COSCHED4) $(COSCHED5) $(COSCHED6) $(COSCHED7) $(COSCHED8)
 

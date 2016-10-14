@@ -15,11 +15,11 @@ int main(int argc, char* argv[ ])
     std::string msg_q;
     using namespace boost::interprocess;
     long int execCount[] = {0, 0};
-    std::string mqName = "queue3";
+    std::string mqName = "queue_abc";
     int buffer;
     size_t recvd_size;
     unsigned int priority;
-    time_t end = time(NULL) + 30;
+    time_t end = time(NULL) + 120;
     for (unsigned int i = 0; i < NUM_THREADS; i++)
     {
       thread_local int msg_num = 0;
