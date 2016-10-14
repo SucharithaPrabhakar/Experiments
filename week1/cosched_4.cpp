@@ -19,8 +19,8 @@ int main(int argc, char* argv[ ])
     std::string msg_q;
     using namespace boost::interprocess;
     long int execCount[] = {0, 0};
-    std::string mqName[] = {"two", "three"};
-    time_t end = time(NULL) + 60;
+    std::string mqName[] = {"six", "seven"};
+    time_t end = time(NULL) + 240;
     int buffer;
     size_t recvd_size;
     unsigned int priority;

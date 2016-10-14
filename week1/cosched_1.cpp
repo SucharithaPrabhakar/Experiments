@@ -19,7 +19,7 @@ int main(int argc, char* argv[ ])
     using namespace boost::interprocess;
     long int execCount[] = {0, 0};
     std::string mqName[] = {"zero", "one"};
-    time_t end = time(NULL) + 60;
+    time_t end = time(NULL) + 240;
     for (unsigned int i = 0; i < NUM_THREADS; i++)
     {
       thread_local int msg_num = 0;
@@ -59,6 +59,8 @@ int main(int argc, char* argv[ ])
   for(unsigned int i = 0; i < NUM_THREADS; i++)
   {
     std::cout << "Exec count of thread\t" << i << "is\t" << execCount[i] << std::endl;
+    remove("zero");
+    remove("one");
   }
   return 0;
 }
